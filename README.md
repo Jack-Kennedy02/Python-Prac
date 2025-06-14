@@ -8,9 +8,6 @@ on top of my normal life. Hopefully you readers enjoy what is beneath you!
 
 Below are the questions I wanted to answer for this project:
 
-1. # This result means that the relationship between age and body leangth
-   is the hypothesis of age having a moderately postiive correlation with body length is statistically significant. As age increases so does body length.
-
 1. What is the relationship beween age and body length?
 2. Do different fur colors have an impact on the number of hours of sleep or sleep?
 3. How does the age of the cat affect its sleep?
@@ -33,39 +30,72 @@ For the capstone of this project I decided to dive into to algorithms to see if 
 
 # The Analysis
 
-## 1. What are the most demanded skills for the top 3 most popular data role?
+## 1. What is the relationship beween age and body length?
 
-To find the most demanded skills for the top 3 most popular data roles. I filtered out those positions by which ones were the most popular, and got the top 5 skills for these top 3 roles. THis query highlights the most popular job titles and their top skills. I should pay attention to depending on the role I'm targeting.
+To investigate the relationship between age and body length I needed to gather data that wsa only relevant to the question I was answering, using the groupby function I grouped age with body length and weight (I included weight apart of the group by as well but didn't end up using it). I then began visualizing the graphs:
 
-View my notebook with detailed steps here: [2_Skills_Intro.ipynb](Project_Time/2_Skills_Intro.ipynb)
+View my notebook with detailed steps here: [Visualizing_Kitties.ipynb](Python_Prac/Visualizing_Kitties.ipynb)
 
 ### Vizualize Data
 
 ``` 
-fig, ax = plt.subplots(len(job_titles), 1)
-
+sns.lineplot(data=age_summary, x='Age_in_years', y='Body_length')
 sns.set_theme(style='ticks')
 
-for i, job_title in enumerate(job_titles):
-    df_plot = df_skills_perc[df_skills_perc['job_title_short'] == job_title].head(5)
-    # df_plot.plot(kind='barh', x='job_skills', y='skill_percent', ax=ax[i], title=job_title)
-    sns.barplot(data=df_plot, x='skill_percent', y='job_skills', ax=ax[i], hue='skill_count', palette='dark:b_r')
-    ax[i].set_title(job_title)
-    ax[i].set_ylabel('')
-    ax[i].set_xlabel('')
-    ax[i].get_legend().remove()
-    ax[i].set_xlim(0,78)
+plt.title('Body_length vs. Age_in_years')
+plt.xlabel('Age (Years)')
+plt.ylabel('Body Length (cm)')
 
-    for n, v in enumerate (df_plot['skill_percent']):
-        ax[i].text(v + 1, n, f'{v:.0f}%' ,va='center')
-    
-    if i != len(job_titles) - 1:
-        ax[i].set_xticks([])
+plt.show() 
+```
 
+I realized quickly that there was too much noise with my visual so I decided to use the .rolling() to solve my problem without sacraficing accuracy.
 
-fig.suptitle('Likelihood of Skills Required in US Job Postings', fontsize=15)
-fig.tight_layout(h_pad=0.5) # fix the overlap
-plt.show()
+Adjusting my data input for the sns.lineplot.
+
+```
+age_summary['Body_length_smooth'] = age_summary['Body_length'].rolling(window=3, center=True).mean()
+
+```
+```
+# Age vs. Body Length
+sns.lineplot(data=age_summary, x='Age_in_years', y='Body_length_smooth')
+sns.set_theme(style='ticks')
+
+plt.title('Body_length vs. Age_in_years')
+plt.xlabel('Age (Years)')
+plt.ylabel('Body Length (cm)')
+
+plt.show() 
+
+```
+
+I ran one more statistical test to add value to the visuals I was being shown
+```
+from scipy.stats import pearsonr
+
+# Replace with your actual column names
+x = clean_data['Age_in_years']
+y = clean_data['Body_length_smooth']
+
+# Perform Pearson correlation test
+r_value, p_value = pearsonr(x, y)
+
+# Print results
+print(f"Correlation coefficient (r): {r_value:.3f}")
+print(f"P-value: {p_value:.3f}")
+
+if p_value > 0.05:
+    print("No statistically significant correlation (fail to reject H0)")
+else:
+    print("Statistically significant correlation (reject H0)")
+
+```
+Output:
+```
+Correlation coefficient (r): 0.599
+P-value: 0.000
+Statistically significant correlation (reject H0)
 ```
 
 ### Results
@@ -74,15 +104,11 @@ plt.show()
 
 ### Insights
 
- 
-- SQL is the most common skill amongst Data Analyst, Data Engineers, and Data Scientist sitting at 51%, 68%, and 72% respectfully.
+- According with the statistcal test I ran, This result means that the relationship between age and body leangth is the hypothesis of age having a moderately postiive correlation with body length is statistically significant. As age increases so does body length.
 
-- Python is the second most common skill amongst these roles with a slight dip at 27% for Data Analyst roles. This may be due to the fact that Data Analysts require progrmas that are more data analytical and visualation centric.
 
-- Data Engineers have 3 of their top 5 skills that are unique to only their role. This role seems to require more specialized programs then compared to Data Analyst and Data Scientists.
-#### 
 
-## 2. How are in-demand skills trending for Data Analysts?
+## 2. Do different fur colors have an impact on the number of hours of sleep or sleep?
 
 ### Visualize Data
 
@@ -122,21 +148,12 @@ plt.show()
 
 - Power Bi and Tableau remained relatively stable throughout the 2023 with slight increases towards the end of the year.
 
-## 3. How well do jobs and skills pay for Data Analysts?
+## 3. How does the age of the cat affect its sleep?
 
 ### Salary Analysis for Data Nerds
 
 ```
-sns.boxplot(data=df_US_top6, x='salary_year_avg', y='job_title_short', order = job_order)
-sns.set_theme(style='ticks')
 
-plt.title('Salary Distribution in the United States')
-plt.xlabel('Yearly Salary (USD)')
-plt.ylabel('')
-plt.xlim(0, 600000)
-ticks_x = plt.FuncFormatter(lambda y, pos:f'${int(y/1000)}K')
-plt.gca().xaxis.set_major_formatter(ticks_x)
-plt.show() 
 ```
 
 #### Results
@@ -156,29 +173,6 @@ plt.show()
 
 ```
 
-fig, ax = plt.subplots(2, 1)
-
-sns.set_theme(style='ticks')
-
-#Top 10 Highest Paid Skills for Data Analysts
-sns.barplot(data=df_DA_top_pay, x='median', y=df_DA_top_pay.index, hue='median', ax=ax[0], palette='dark:b_r')
-ax[0].legend().remove()
-ax[0].set_title('Top 10 Highest Paid Skills for Data Analysts')
-ax[0].set_ylabel('')
-ax[0].set_xlabel('')
-ax[0].xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'${int(x/1000)}K'))
-
-#Top 10 Most In-Demand Skills for Data Analysts
-sns.barplot(data=df_DA_skills, x='median', y=df_DA_skills.index, hue='median', ax=ax[1], palette='light:b')
-ax[1].legend().remove()
-ax[1].set_title('Top 10 Most In-Demand Skills for Data Analysts')
-ax[1].set_ylabel('')
-ax[1].set_xlabel('')
-ax[1].xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'${int(x/1000)}K'))
-
-plt.xlim(0, 200000)
-plt.tight_layout()
-plt.show()
 ```
 
 ### Results
@@ -193,46 +187,11 @@ In-demand skils for data analysts in the US:
 
 - Programming and Visualation Softwares (python, tableau, sql) are on average more compesated then microsoft softwares (power bi, powerpoint, excel, word). Although this insight may not be as significant due to the gap being around 15K from top to bottom.
 
-## 4. What is the most optimal skill to learn for Data Analysts?
+## Sleep Predictor
 
 ### Visualize Data
 
 ```
-
-# df_plot.plot(kind='scatter', x='skill_percent', y='median_salary')
-sns.scatterplot(
-    data=df_plot,
-    x='skill_percent',
-    y='median_salary',
-    hue='technology'
-
-)
-
-sns.despine()
-sns.set_theme(style='ticks')
-# Prepare texts for adjust Text
-
-texts=[]
-for i, txt in enumerate(df_DA_skills_high_demand.index):
-    texts.append(plt.text(df_DA_skills_high_demand['skill_percent'].iloc[i], df_DA_skills_high_demand['median_salary'].iloc[i], str(df_DA_skills_high_demand.index[i])))
-
-# Adjust text to avoid overlap
-adjust_text(texts, arrowprops=dict(arrowstyle='->', color='gray'))
-
-# Set axis labels, title, and legend
-plt.xlabel('Percent of Data Analyst Jobs')
-plt.ylabel('Median Yearly Salary')
-plt.title('Most Optimal Skills for Data Analysts in the US')
-
-
-from matplotlib.ticker import PercentFormatter
-ax = plt.gca()
-ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, pos: f'${int(y/1000)}K'))
-ax.xaxis.set_major_formatter(PercentFormatter(decimals=0))
-
-# Adjust layout and display plot
-plt.tight_layout()
-plt.show()
 
 ```
 
@@ -265,4 +224,4 @@ This project provided several insights into the data job market:
 
 # Conclusion
 
-This exploration on the data jbo market has been incredibly informative, highlighting the critical skills needed to achieve the highest paying job titles. Gathering my own insights this project has personally influenced my career trajectory. Personally, I will be purusing python data projects, with the intentions to eventually pursue a masters' degree in data science. This project has also proved to be a valuable foundation for future opportunities and growth within the data job market and community.
+This exploration on the data job market has been incredibly informative, highlighting the critical skills needed to achieve the highest paying job titles. Gathering my own insights this project has personally influenced my career trajectory. Personally, I will be purusing python data projects, with the intentions to eventually pursue a masters' degree in data science. This project has also proved to be a valuable foundation for future opportunities and growth within the data job market and community.
