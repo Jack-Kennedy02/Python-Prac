@@ -46,8 +46,9 @@ plt.title('Body_length vs. Age_in_years')
 plt.xlabel('Age (Years)')
 plt.ylabel('Body Length (cm)')
 
-plt.show() 
+plt.show()
 ```
+![V1 A](https://github.com/user-attachments/assets/719a9ad3-7b92-492d-b2b6-f3df40beb4f8)
 
 I realized quickly that there was too much noise with my visual so I decided to use the .rolling() to solve my problem without sacraficing accuracy.
 
@@ -69,8 +70,14 @@ plt.ylabel('Body Length (cm)')
 plt.show() 
 
 ```
+![V1 B](https://github.com/user-attachments/assets/375be131-a36c-4427-837e-5e0bfdeb35b7)
 
-I ran one more statistical test to add value to the visuals I was being shown
+*Line Plot visualizing the average Body Length as Age increases in a cat.*
+
+
+At this point I saw a relationship was forming, however, to add validity to my findings I  decided 
+to run one more statistical test, the Pearson Coefficient.
+
 ```
 from scipy.stats import pearsonr
 
@@ -98,94 +105,114 @@ P-value: 0.000
 Statistically significant correlation (reject H0)
 ```
 
+- According to pearson's correlation coefficient, the coefficient of 0.599 suggests a moderatle postive relationship between the two variables. Since the P-Value is 0 this means the moderatly postive relationship is statistically significant. This result means that the relationship between age and body leangth is the hypothesis of age having a moderately postiive correlation with body length is statistically significant. As age increases so does body length. However, there is a significant decrease in body length as the cat ages beyond the age of 9.
+
+
 ### Results
 
-![Visualization of Top Skills for Data Nerd](Project_Time/Images/skill_demand_percentages.png)
+![V1 B](https://github.com/user-attachments/assets/375be131-a36c-4427-837e-5e0bfdeb35b7)
+
+```
+Correlation coefficient (r): 0.599
+P-value: 0.000
+Statistically significant correlation (reject H0)
+```
 
 ### Insights
 
-- According with the statistcal test I ran, This result means that the relationship between age and body leangth is the hypothesis of age having a moderately postiive correlation with body length is statistically significant. As age increases so does body length.
+- As the cat ages, on average, the it begins to increase in size, in it's final years of life it seems to loss body length on average. This could be due to a number of factors like muscles losing mass or the lose of flexbility.
+
+- The longest body length on average a cat in this sample had was 60 cm in height.
 
 
+## 2. Do different fur colors have an impact on the number of hours of sleep or play?
 
-## 2. Do different fur colors have an impact on the number of hours of sleep or sleep?
+To investigate this question I used value counts to understand which fur colors were signficant then
+I built two bar graphs on two plots since sleep had a different unit of measure than play.
+
+View my notebook with detailed steps here: [Visualizing_Kitties.ipynb](Python_Prac/Visualizing_Kitties.ipynb)
 
 ### Visualize Data
 
 ```
-df_plot = df_DA_US_percent.iloc[:, :5]
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
 
-sns.lineplot(data=df_plot, dashes=False, palette='tab10')
-sns.set_theme(style='ticks')
-sns.despine()
+# Plot Play_Time
+breed_group['Play_Time'].plot(kind='bar', ax=ax1, color='skyblue')
+ax1.set_ylabel('Average Play Time')
+ax1.set_title('Average Play Time by Fur Colour')
 
-plt.title('Trending Top Skills for Data Analysts in the US')
-plt.ylabel('Likelihood in Job Posting')
-plt.xlabel('2023')
-plt.legend().remove()
+# Plot Sleep
+breed_group['Sleep'].plot(kind='bar', ax=ax2, color='lightgreen')
+ax2.set_ylabel('Average Sleep Time')
+ax2.set_title('Average Sleep Time by Fur Colour')
 
+# X-axis label only on bottom plot since they share x-axis
+ax2.set_xlabel('Fur Colour Dominant')
+ax2.set_xticklabels(ax2.get_xticklabels(), rotation=45, ha='right')
 
-from matplotlib.ticker import PercentFormatter
-ax = plt.gca()
-ax.yaxis.set_major_formatter(PercentFormatter(decimals=0))
-
-for i in range(5):
-    plt.text(11.2,df_plot.iloc[-1, i], df_plot.columns[i])
-
+plt.tight_layout()
 plt.show()
 ```
 
 ### Results
 
-![Trending Top Skills for Data Analysts in the US](Project_Time/Images/Trending_Top_Skills.png)
-*Bar graph visualizing the trending top skills for data analysts in the US in 2023.*
+![V2 A](https://github.com/user-attachments/assets/87182742-6284-47ad-b555-a49be9f7ae93)
+*Two stacked Bar Charts visualizing the difference in average play and sleep time between fur colors*
 
 ### Insights
 
--  SQL is the top skill for data analyst starting the year at 63% and dropping to 53% by the end of the year.
-
-- Excel and Python saw some heavy fluctuations in the 2nd half of the year but saw the the most dramatic increases during the months of November and December. Excel increased its likelihood by 5.2% and Python increased by 5.3%.
-
-- Power Bi and Tableau remained relatively stable throughout the 2023 with slight increases towards the end of the year.
+-  THere wasn't a huge difference in
+-  The difference in averages for both play time and sleep time were not statistically signifcicant, meaning
+   the observed difference had no significance relevance.
+-  The fur color did not affect the average play and sleep time.
 
 ## 3. How does the age of the cat affect its sleep?
-
-### Salary Analysis for Data Nerds
-
-```
-
-```
-
-#### Results
-
-!['Salary Distributions of Data Jobs in the US](Project_Time/Images/Salary_Distribution_In_US.png)
-*Box plot visualizing in the salary distributions for the top 6 data job titles.*
-
-#### Insights
-
-- Looking at the median salaries, the top job titles in salary distributions are the Senior Data Scientist and Data Engineer roles at around 130K USD. However, the entry and mid level title of Data Scientists and Enginers have shown outlier salaries that are significantly higher than their senior positions at 500K and 600K. Showing that an expertise in a very niche and desired skill can be compensated more without senior experience.
-
-- The Senior Data Analyst roles recieves less compensation through the year than Data Scientists and Data engineers on the median. Making a increased incestive to jump from being a Data Analyst to either a Data Scientist or Data Engineer when making a new step in your career.
-
-### Highest Paid & Most Demanded Skills for Data Analysts
 
 ### Visualize Data
 
 ```
+df['Age_Year'] = df['Age'].astype(int)
+grouped = df.groupby('Age_Year')['Sleep'].mean().reset_index()
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10,6))
+sns.barplot(data=grouped, x='Age_Year', y='Sleep')
+plt.title('Average Sleep by Age (Year)')
+plt.xlabel('Age (years)')
+plt.ylabel('Average Sleep (hours)')
+plt.show()
+```
+
+#### Results
+
+![V3 A](https://github.com/user-attachments/assets/aacbd826-7088-4eba-ac23-0c269fc7c409)
+*Bar Chart visualizing the average sleep for each year of the cat*
+
+Running ANOVA Test:
+
+```
+from scipy import stats
+
+# Create list of arrays, one per group
+groups = [group['Sleep'].values for name, group in df.groupby('Age_Year')]
+
+# Run ANOVA
+f_stat, p_val = stats.f_oneway(*groups)
+print(f"ANOVA test: F = {f_stat:.3f}, p = {p_val:.4f}")
 
 ```
 
-### Results
-In-demand skils for data analysts in the US:
 
-![The Highest Paid & Most In-Demand SKills for Data Analysts in the US](Project_Time/Images/Most_In_Demand_Skills_For_Data_Analysts_In_The_US.png)
-*Two separa bar graphs visualizing the highest paid skills and most in-demand skilsl for data analysts in the US.*
 
-### Insights
+#### Insights
 
-- The gap between cloud softwares that are more specializaed compared to programming/vizualation/microsoft software ware is significant when it comes to compensation. The 10th highest cloud software is compensated around 150k  while the 10th highest non-cloud software is around 80k. It's safe to say that learning niche cloud programs will be compensated more, however, these skills may not be in demand as much as the lower paying non-cloud softwares.
+- 
 
-- Programming and Visualation Softwares (python, tableau, sql) are on average more compesated then microsoft softwares (power bi, powerpoint, excel, word). Although this insight may not be as significant due to the gap being around 15K from top to bottom.
+- The Senior Data Analyst roles recieves less compensation through the year than Data Scientists and Data engineers on the median. Making a increased incestive to jump from being a Data Analyst to either a Data Scientist or Data Engineer when making a new step in your career.
+
 
 ## Sleep Predictor
 
