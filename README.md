@@ -204,28 +204,147 @@ f_stat, p_val = stats.f_oneway(*groups)
 print(f"ANOVA test: F = {f_stat:.3f}, p = {p_val:.4f}")
 
 ```
-
+```
+ANOVA test: F = 65.226, p = 0.0000
+```
 
 
 #### Insights
 
-- 
-
-- The Senior Data Analyst roles recieves less compensation through the year than Data Scientists and Data engineers on the median. Making a increased incestive to jump from being a Data Analyst to either a Data Scientist or Data Engineer when making a new step in your career.
-
+- Cats sleep the most when they are young and older, being the most awake during their adult years.
+- The high variance from the ANOVA test and P-Value suggest that the difference between the averages of the ages are statistcally significant further providing validity to the findings
 
 ## Sleep Predictor
 
-### Visualize Data
+Using linear regression we were found the R^2 value and the MSE (mean squared error. The MSE value is used to figure out how well a regression predicts values. 0 being a perfect model and large numbers indicate weaker models. 
 
+### Testing Predictive Models
+
+```
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+X = df.drop('Sleep_time_hours', axis=1)
+X = pd.get_dummies(X)  # handle categorical variables
+y = df['Sleep_time_hours']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+preds = model.predict(X_test)
+print("MSE:", mean_squared_error(y_test, preds))
+print("R²:", r2_score(y_test, preds))
+
+```
+```
+results
 ```
 
 ```
+from sklearn.ensemble import RandomForestRegressor
+
+model = RandomForestRegressor(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+preds = model.predict(X_test)
+
+print("MSE:", mean_squared_error(y_test, preds))
+print("R²:", r2_score(y_test, preds))
+```
+
+```
+MSE: 3.1803871559633032
+R²: 0.494688547433737
+```
+```
+from sklearn.ensemble import GradientBoostingRegressor
+
+model = GradientBoostingRegressor(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+preds = model.predict(X_test)
+
+print("MSE:", mean_squared_error(y_test, preds))
+print("R²:", r2_score(y_test, preds))
+
+### Trying Gradient Boosting Regressor
+```
+```
+MSE: 2.976999803827535
+R²: 0.5270034680083053
+```
+### Choosing CatBoost
+
+
+```
+# Your dataframe: df
+# Target variable:
+y = df['Sleep_time_hours']
+# Features:
+X = df.drop('Sleep_time_hours', axis=1)
+
+# List categorical feature column names or indices
+categorical_features = [
+    'Breed', 'Gender', 'Neutered_or_spayed', 'Fur_colour_dominant', 
+    'Fur_pattern', 'Eye_colour', 'Allowed_outdoor', 'Preferred_food', 'Country'
+]
+
+# Split data
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create CatBoost Pool objects for train and test
+train_pool = Pool(X_train, y_train, cat_features=categorical_features)
+test_pool = Pool(X_test, y_test, cat_features=categorical_features)
+
+# Initialize and train model
+model = CatBoostRegressor(iterations=121, learning_rate=0.1, depth=6, random_seed=42, verbose=100)
+model.fit(train_pool, eval_set=test_pool, early_stopping_rounds=50)
+
+# Predict and evaluate
+preds = model.predict(test_pool)
+
+from sklearn.metrics import mean_squared_error, r2_score
+print("MSE:", mean_squared_error(y_test, preds))
+print("R²:", r2_score(y_test, preds))
+```
+```
+0:	learn: 2.4644598	test: 2.5530228	best: 2.5530228 (0)	total: 2.43ms	remaining: 2.43s
+100:	learn: 1.3880068	test: 1.7616958	best: 1.7526340 (88)	total: 116ms	remaining: 1.03s
+Stopped by overfitting detector  (50 iterations wait)
+
+bestTest = 1.750854189
+bestIteration = 120
+
+Shrink model to first 121 iterations.
+MSE: 3.0654903896258303
+R²: 0.5642077173021374
+```
+
 
 ### Results
 
-![Most Optimal Skills for Data Analysts in the US](Project_Time/Images/Most_Optimal_Skills_for_Data_Analysts_in_the_US_with_Coloring_by_Technology.png)
-*A scatter plot visualizing the most optimal skills (high paying & high demand) for data analysts in the US.*
+```
+# Get feature importance scores from your trained CatBoost model
+importances = model.get_feature_importance(train_pool)
+
+# Get feature names (make sure this matches the order of your training features)
+feature_names = X_train.columns
+
+# Plot feature importance
+plt.figure(figsize=(10,6))
+plt.barh(feature_names, importances)
+plt.xlabel("Feature Importance")
+plt.title("CatBoost Feature Importance")
+plt.gca().invert_yaxis()  # Highest importance on top
+plt.show()
+```
+
+![V1_C](https://github.com/user-attachments/assets/2d824ff5-0fae-4466-a7d3-65cd0f0dc641)
+*Yerrrrrrrrrrb*
 
 ### Insights
 
@@ -233,8 +352,7 @@ print(f"ANOVA test: F = {f_stat:.3f}, p = {p_val:.4f}")
 
 # What you learned
 
-- Data Inconsistencies: Handling missing or inconsistent data entries requires careful consideration and thorough techniques to ensure the integrity  of the analysis. 
-
+- Stuff and things
 - Complex Data Visualization: Designing effect visual representation of complex datasets was challenging in conveying insights clrealy and compellingly.
 
 - Balancing Breadth and Depth: Deciding how deeply to dive into each analysis while maintaining a broad overall landscape required constant balancing to ensure comprehensive coverage without getting lost in details.
