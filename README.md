@@ -259,6 +259,8 @@ print("R²:", r2_score(y_test, preds))
 MSE: 3.1803871559633032
 R²: 0.494688547433737
 ```
+This results tell us the model is an average for the data and only around 50% of the data is explained by the variance with the R^2 value. We can do better.
+
 ```
 from sklearn.ensemble import GradientBoostingRegressor
 
@@ -276,6 +278,9 @@ print("R²:", r2_score(y_test, preds))
 MSE: 2.976999803827535
 R²: 0.5270034680083053
 ```
+Honestly the with the results of this predictor I could have went with this model, however, I wanted to try Catboost which is
+
+
 ### Choosing CatBoost
 
 
@@ -323,9 +328,11 @@ Shrink model to first 121 iterations.
 MSE: 3.0654903896258303
 R²: 0.5642077173021374
 ```
+THe MSE value is a bit higher the nthe gradiant booster regressor however the R^2 value is 0.56 instead of 0.52, so this  is the best model we have to predict the data. 
+Honestly it's pretty bang average, so I'm not genuinely impressed by my findings.
 
 
-### Results
+### Most imporant categories that affect the predictive model
 
 ```
 # Get feature importance scores from your trained CatBoost model
@@ -348,25 +355,22 @@ plt.show()
 
 ### Insights
 
-- The scatter plot showed that programming skills (colored in blue) are clustered around high median salaries than analyst_tools (colored in yellow). The range for programming tools are from 90k - 98k while the analyst tools are 82k to 93k. 
+- Our best predictive model was the Catboost regressor and I wasn't too impressed by the R^2 and MSE scores, both indicated weak models that only explained maybe 56% of the data.
+- The one category that immensily affected the facotr of sleep was age in years.
 
 # What you learned
 
-- Stuff and things
-- Complex Data Visualization: Designing effect visual representation of complex datasets was challenging in conveying insights clrealy and compellingly.
+- Building Models: Designing models that created dummy variables to incorporate categorical columns in predictive models.
 
-- Balancing Breadth and Depth: Deciding how deeply to dive into each analysis while maintaining a broad overall landscape required constant balancing to ensure comprehensive coverage without getting lost in details.
+- Establishing Validity: Using statistcal formulas like pearson's coefficient, p-values, and ANOVA testing to help validate the correlations you potentially found.
 
-# Insights
+- Establishing Good Data: Most of the categories in the data did not have an affect on sleep or any other feature. Building good datasets is the foundation of building
+  better predictive models.
 
-This project provided several insights into the data job market:
-
-- Skill Demand and Salary Correlation: There is a clear correlation between the demand for specific skills and the salaries there skills command. Advanced and specialized skills like Python and Oracle often lead to higher Salaries.
-
-- Market Trends: There are changing trends in skills demand, highlighting the dynamic nature of the data job market. Keeping up with these trends is essential for career growth in data analytics
-
-- Economic Value of Skills: Understanding which skills are both in-demand and will-compensated can guide data danalysts in prioritizing learning to maximize their encomic returns.
 
 # Conclusion
 
-This exploration on the data job market has been incredibly informative, highlighting the critical skills needed to achieve the highest paying job titles. Gathering my own insights this project has personally influenced my career trajectory. Personally, I will be purusing python data projects, with the intentions to eventually pursue a masters' degree in data science. This project has also proved to be a valuable foundation for future opportunities and growth within the data job market and community.
+Finding cool relationships like how body length and age, fur colors and play time, etc.. was a great experience to explore that any feature can have a relationships with another
+feature. Another conclusion I reached was do my results actually matter or contribute to a somewhat useful questions with kitty data. I honestly wouldn't choose this data set
+again to work with it's a good dataset to Extract and Transform but it was difficult to relate this to questions and answers for findings. It felt like the features were to
+far apart from eachother. I'm very glad I did it though, it's a pain to write this Read Me's....
